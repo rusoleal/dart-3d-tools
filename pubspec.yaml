@@ -1,4 +1,4 @@
-name: gltf
+name: gltf_loader
 description: "glTF loader"
 version: 0.0.1
 homepage: https://github.com/rusoleal/dart-3d-tools
