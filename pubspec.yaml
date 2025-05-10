@@ -1,6 +1,6 @@
 name: gltf_loader
-description: "glTF loader"
-version: 0.0.1
+description: "pure dart glTF 2.0 Specification loader utility"
+version: 0.0.2
 homepage: https://github.com/rusoleal/dart-3d-tools
 
 environment:

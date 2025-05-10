@@ -1,11 +1,6 @@
-
-
 import 'gltf.dart';
 
-enum MagFilterMode {
-  nearest,
-  linear
-}
+enum MagFilterMode { nearest, linear }
 
 enum MinFilterMode {
   nearest,
@@ -13,14 +8,10 @@ enum MinFilterMode {
   nearestMipmapNearest,
   linearMipmapNearest,
   nearestMipmapLinear,
-  linearMipmapLinear
+  linearMipmapLinear,
 }
 
-enum WrapMode {
-  clampToEdge,
-  mirroredRepeat,
-  repeat
-}
+enum WrapMode { clampToEdge, mirroredRepeat, repeat }
 
 class Sampler extends GLTFBase {
   MagFilterMode? magFilter;
@@ -32,10 +23,10 @@ class Sampler extends GLTFBase {
   Sampler({
     this.magFilter,
     this.minFilter,
-    this.wrapS=WrapMode.repeat,
-    this.wrapT=WrapMode.repeat,
+    this.wrapS = WrapMode.repeat,
+    this.wrapT = WrapMode.repeat,
     this.name,
     super.extensions,
-    super.extras
+    super.extras,
   });
 }

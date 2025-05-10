@@ -1,5 +1,3 @@
-
-
 import 'gltf.dart';
 
 class Mesh extends GLTFBase {
@@ -12,12 +10,12 @@ class Mesh extends GLTFBase {
     this.weights,
     this.name,
     super.extensions,
-    super.extras
+    super.extras,
   });
 }
 
 class Primitive extends GLTFBase {
-  Map<String,int> attributes;
+  Map<String, int> attributes;
   int? indices;
   int? material;
   PrimitiveMode mode;
@@ -27,14 +25,14 @@ class Primitive extends GLTFBase {
     required this.attributes,
     this.indices,
     this.material,
-    this.mode=PrimitiveMode.triangles,
+    this.mode = PrimitiveMode.triangles,
     this.targets,
     super.extensions,
-    super.extras
+    super.extras,
   });
 
-  static Primitive fromGLTF(Map<String,dynamic> data) {
-    Map<String,int> attributes = _attributesFromGLTF(data['attributes']);
+  static Primitive fromGLTF(Map<String, dynamic> data) {
+    Map<String, int> attributes = _attributesFromGLTF(data['attributes']);
     int? indices = data['indices'];
     int? material = data['material'];
     int mode = data['mode'] ?? 4;
@@ -46,8 +44,8 @@ class Primitive extends GLTFBase {
     );
   }
 
-  static Map<String,int> _attributesFromGLTF(Map<String,dynamic> data) {
-    Map<String,int> toReturn = {};
+  static Map<String, int> _attributesFromGLTF(Map<String, dynamic> data) {
+    Map<String, int> toReturn = {};
     for (var entry in data.entries) {
       toReturn[entry.key] = entry.value;
     }
@@ -77,7 +75,6 @@ class Primitive extends GLTFBase {
         throw Exception("Unknown primitive mode: $mode");
     }
   }
-
 }
 
 enum PrimitiveMode {
@@ -87,5 +84,5 @@ enum PrimitiveMode {
   lineStrip,
   triangles,
   triangleStrip,
-  triangleFan
+  triangleFan,
 }

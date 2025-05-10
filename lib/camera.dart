@@ -1,15 +1,9 @@
-
 import 'gltf.dart';
 
-abstract class Camera extends GLTFBase{
+abstract class Camera extends GLTFBase {
   String? name;
 
-  Camera({
-    this.name,
-    super.extensions,
-    super.extras
-  });
-
+  Camera({this.name, super.extensions, super.extras});
 }
 
 class OrthographicCamera extends Camera {
@@ -25,7 +19,7 @@ class OrthographicCamera extends Camera {
     required this.zNear,
     super.name,
     super.extensions,
-    super.extras
+    super.extras,
   });
 }
 
@@ -42,7 +36,6 @@ class PerspectiveCamera extends Camera {
     required this.zNear,
     super.name,
     super.extensions,
-    super.extras
+    super.extras,
   });
-
 }

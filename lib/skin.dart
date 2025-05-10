@@ -1,9 +1,6 @@
-
-
 import 'gltf.dart';
 
-class Skin extends GLTFBase{
-
+class Skin extends GLTFBase {
   int? inverseBindMatrices;
   int? skeleton;
   List<int> joints;
@@ -15,6 +12,6 @@ class Skin extends GLTFBase{
     required this.joints,
     this.name,
     super.extensions,
-    super.extras
+    super.extras,
   });
 }

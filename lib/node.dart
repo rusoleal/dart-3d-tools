@@ -1,4 +1,3 @@
-
 import 'package:vector_math/vector_math.dart';
 import 'gltf.dart';
 
@@ -26,13 +25,10 @@ class Node extends GLTFBase {
     List<double>? weights,
     this.name,
     super.extensions,
-    super.extras
-  }):
-      matrix = matrix ?? Matrix4.identity(),
-      rotation = rotation ?? Quaternion.identity(),
-      scale = scale ?? Vector3.all(1.0),
-      translation = translation ?? Vector3.zero(),
-      weights = weights ?? []
-  ;
-
+    super.extras,
+  }) : matrix = matrix ?? Matrix4.identity(),
+       rotation = rotation ?? Quaternion.identity(),
+       scale = scale ?? Vector3.all(1.0),
+       translation = translation ?? Vector3.zero(),
+       weights = weights ?? [];
 }

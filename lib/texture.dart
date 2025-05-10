@@ -1,4 +1,3 @@
-
 import 'gltf.dart';
 
 class Texture extends GLTFBase {
@@ -11,6 +10,6 @@ class Texture extends GLTFBase {
     this.source,
     this.name,
     super.extensions,
-    super.extras
+    super.extras,
   });
 }

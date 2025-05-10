@@ -1,14 +1,9 @@
-
 import 'utils.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'gltf.dart';
 
-enum AlphaMode {
-  opaque,
-  mask,
-  blend,
-}
+enum AlphaMode { opaque, mask, blend }
 
 class Material extends GLTFBase {
   String? name;
@@ -28,12 +23,12 @@ class Material extends GLTFBase {
     this.occlusionTexture,
     this.emissiveTexture,
     Vector3? emissiveFactor,
-    this.alphaMode=AlphaMode.opaque,
-    this.alphaCutoff=0.5,
-    this.doubleSided=false,
+    this.alphaMode = AlphaMode.opaque,
+    this.alphaCutoff = 0.5,
+    this.doubleSided = false,
     super.extensions,
-    super.extras
-  }):emissiveFactor=emissiveFactor??Vector3.zero();
+    super.extras,
+  }) : emissiveFactor = emissiveFactor ?? Vector3.zero();
 }
 
 class PBRMetallicRoughness extends GLTFBase {
@@ -50,18 +45,23 @@ class PBRMetallicRoughness extends GLTFBase {
     this.roughnessFactor = 1.0,
     this.metallicRoughnessTexture,
     super.extensions,
-    super.extras
-  }): baseColorFactor = baseColorFactor ?? Vector4.all(1.0);
+    super.extras,
+  }) : baseColorFactor = baseColorFactor ?? Vector4.all(1.0);
 
   static PBRMetallicRoughness? fromGLTF(Map<String, dynamic>? data) {
     if (data == null) {
       return null;
     }
-    Vector4 baseColorFactor = vec4FromGLTF(data['baseColorFactor']) ?? Vector4.all(1.0);
-    TextureInfo? baseColorTexture = TextureInfo.fromGLTF(data['baseColorTexture']);
+    Vector4 baseColorFactor =
+        vec4FromGLTF(data['baseColorFactor']) ?? Vector4.all(1.0);
+    TextureInfo? baseColorTexture = TextureInfo.fromGLTF(
+      data['baseColorTexture'],
+    );
     double metallicFactor = (data['metallicFactor'] ?? 1.0).toDouble();
     double roughnessFactor = (data['roughnessFactor'] ?? 1.0).toDouble();
-    TextureInfo? metallicRoughnessTexture = TextureInfo.fromGLTF(data['metallicRoughnessTexture']);
+    TextureInfo? metallicRoughnessTexture = TextureInfo.fromGLTF(
+      data['metallicRoughnessTexture'],
+    );
 
     return PBRMetallicRoughness(
       baseColorFactor: baseColorFactor,
@@ -79,9 +79,9 @@ class TextureInfo extends GLTFBase {
 
   TextureInfo({
     required this.index,
-    this.texCoord=0,
+    this.texCoord = 0,
     super.extensions,
-    super.extras
+    super.extras,
   });
 
   static TextureInfo? fromGLTF(Map<String, dynamic>? data) {
@@ -95,15 +95,14 @@ class TextureInfo extends GLTFBase {
 }
 
 class NormalTextureInfo extends TextureInfo {
-
   double scale;
 
   NormalTextureInfo({
     required super.index,
-    super.texCoord=0,
-    this.scale=1.0,
+    super.texCoord = 0,
+    this.scale = 1.0,
     super.extensions,
-    super.extras
+    super.extras,
   });
 
   static NormalTextureInfo? fromGLTF(Map<String, dynamic>? data) {
@@ -115,19 +114,17 @@ class NormalTextureInfo extends TextureInfo {
     double scale = data['scale'] ?? 1.0;
     return NormalTextureInfo(index: index, texCoord: texCoord, scale: scale);
   }
-
 }
 
 class OcclusionTextureInfo extends TextureInfo {
-
   double strength;
 
   OcclusionTextureInfo({
     required super.index,
-    super.texCoord=0,
-    this.strength=1.0,
+    super.texCoord = 0,
+    this.strength = 1.0,
     super.extensions,
-    super.extras
+    super.extras,
   });
 
   static OcclusionTextureInfo? fromGLTF(Map<String, dynamic>? data) {
@@ -137,6 +134,10 @@ class OcclusionTextureInfo extends TextureInfo {
     int index = data['index'];
     int texCoord = data['texCoord'] ?? 0;
     double strength = data['strength'] ?? 1.0;
-    return OcclusionTextureInfo(index: index, texCoord: texCoord, strength: strength);
+    return OcclusionTextureInfo(
+      index: index,
+      texCoord: texCoord,
+      strength: strength,
+    );
   }
 }

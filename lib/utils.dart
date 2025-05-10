@@ -12,11 +12,7 @@ Vector3? vec3FromGLTF(List<dynamic>? vec) {
   if (vec.length != 3) {
     throw Exception('Vector3 must have 3 elements');
   }
-  return Vector3(
-    vec[0].toDouble(),
-    vec[1].toDouble(),
-    vec[2].toDouble()
-  );
+  return Vector3(vec[0].toDouble(), vec[1].toDouble(), vec[2].toDouble());
 }
 
 Vector4? vec4FromGLTF(List<dynamic>? vec) {
@@ -30,7 +26,7 @@ Vector4? vec4FromGLTF(List<dynamic>? vec) {
     vec[0].toDouble(),
     vec[1].toDouble(),
     vec[2].toDouble(),
-    vec[3].toDouble()
+    vec[3].toDouble(),
   );
 }
 
@@ -45,12 +41,11 @@ Quaternion? quatFromGLTF(List<dynamic>? quat) {
     quat[0].toDouble(),
     quat[1].toDouble(),
     quat[2].toDouble(),
-    quat[3].toDouble()
+    quat[3].toDouble(),
   );
 }
 
 Matrix4? mat4FromGLTF(List<dynamic>? mat) {
-
   if (mat == null) {
     return null;
   }
@@ -153,12 +148,11 @@ AnimationInterpolation? animationInterpolationFromGLTF(String? mode) {
       return AnimationInterpolation.cubicSpline;
     default:
       throw Exception('Unsupported animation interpolation: $mode');
-
   }
 }
 
 BufferViewTarget? bufferViewTargetFromGLTF(int? mode) {
-  if (mode==null) {
+  if (mode == null) {
     return null;
   }
   switch (mode) {
