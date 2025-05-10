@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:scene3d/project.dart';
-
 void main() {
   test('adds one to input values', () {
 

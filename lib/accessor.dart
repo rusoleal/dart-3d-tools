@@ -1,4 +1,6 @@
 
+import 'gltf.dart';
+
 /// The datatype of the accessor’s components.
 enum ComponentType {
   byte,
@@ -21,7 +23,7 @@ enum AccessorType {
 }
 
 /// A typed view into a buffer view that contains raw binary data.
-class Accessor {
+class Accessor extends GLTFBase{
   int? bufferView;
   int byteOffset;
   ComponentType componentType;
@@ -35,5 +37,17 @@ class Accessor {
   // extensions
   // extras
 
-  Accessor({this.bufferView, this.byteOffset=0, required this.componentType, this.normalized=false, required this.count, required this.type, this.min, this.max, this.name});
+  Accessor({
+    this.bufferView,
+    this.byteOffset=0,
+    required this.componentType,
+    this.normalized=false,
+    required this.count,
+    required this.type,
+    this.min,
+    this.max,
+    this.name,
+    super.extensions,
+    super.extras
+  });
 }

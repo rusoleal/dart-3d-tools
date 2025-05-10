@@ -1,26 +1,48 @@
 
-abstract class Camera {
+import 'gltf.dart';
+
+abstract class Camera extends GLTFBase{
   String? name;
 
-  Camera({this.name});
+  Camera({
+    this.name,
+    super.extensions,
+    super.extras
+  });
 
 }
 
 class OrthographicCamera extends Camera {
-  double xmag;
-  double ymag;
-  double zfar;
-  double znear;
+  double xMag;
+  double yMag;
+  double zFar;
+  double zNear;
 
-  OrthographicCamera({required this.xmag, required this.ymag, required this.zfar, required this.znear, String? name}): super(name: name);
+  OrthographicCamera({
+    required this.xMag,
+    required this.yMag,
+    required this.zFar,
+    required this.zNear,
+    super.name,
+    super.extensions,
+    super.extras
+  });
 }
 
 class PerspectiveCamera extends Camera {
   double? aspectRatio;
-  double yfov;
-  double? zfar;
-  double znear;
+  double yFov;
+  double? zFar;
+  double zNear;
 
-  PerspectiveCamera({this.aspectRatio, required this.yfov, this.zfar, required this.znear, String? name}): super(name: name);
+  PerspectiveCamera({
+    this.aspectRatio,
+    required this.yFov,
+    this.zFar,
+    required this.zNear,
+    super.name,
+    super.extensions,
+    super.extras
+  });
 
 }

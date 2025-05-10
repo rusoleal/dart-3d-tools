@@ -1,7 +1,7 @@
-name: scene3d
-description: "A new Flutter project."
+name: gltf
+description: "glTF loader"
 version: 0.0.1
-homepage:
+homepage: https://github.com/rusoleal/dart-3d-tools
 
 environment:
   sdk: ^3.7.2

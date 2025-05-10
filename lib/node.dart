@@ -1,9 +1,10 @@
 
 import 'package:vector_math/vector_math.dart';
+import 'gltf.dart';
 
-class Node {
+class Node extends GLTFBase {
   int? camera;
-  List<int> children;
+  List<int>? children;
   int? skin;
   Matrix4 matrix;
   int? mesh;
@@ -15,7 +16,7 @@ class Node {
 
   Node({
     this.camera,
-    List<int>? children,
+    this.children,
     this.skin,
     Matrix4? matrix,
     this.mesh,
@@ -24,13 +25,14 @@ class Node {
     Vector3? translation,
     List<double>? weights,
     this.name,
+    super.extensions,
+    super.extras
   }):
-      this.children = children ?? [],
-      this.matrix = matrix ?? Matrix4.identity(),
-      this.rotation = rotation ?? Quaternion.identity(),
-      this.scale = scale ?? Vector3.all(1.0),
-      this.translation = translation ?? Vector3.zero(),
-      this.weights = weights ?? []
+      matrix = matrix ?? Matrix4.identity(),
+      rotation = rotation ?? Quaternion.identity(),
+      scale = scale ?? Vector3.all(1.0),
+      translation = translation ?? Vector3.zero(),
+      weights = weights ?? []
   ;
 
 }
