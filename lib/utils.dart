@@ -1,4 +1,4 @@
-import 'package:gltf/sampler.dart';
+import 'sampler.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'animation.dart';

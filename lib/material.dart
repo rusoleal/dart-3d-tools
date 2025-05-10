@@ -1,5 +1,5 @@
 
-import 'package:gltf/utils.dart';
+import 'utils.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'gltf.dart';

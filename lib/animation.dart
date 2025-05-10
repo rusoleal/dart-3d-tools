@@ -1,6 +1,6 @@
 
-import 'package:gltf/utils.dart';
 
+import 'utils.dart';
 import 'gltf.dart';
 
 class Animation extends GLTFBase {
