@@ -1,3 +1,7 @@
+## 0.0.2
+
+* dart format covention
+
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Initial release of glTF 2.0 spec. loader.
