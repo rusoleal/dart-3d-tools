@@ -1,8 +1,22 @@
 import 'gltf.dart';
+import 'node.dart';
+import 'material.dart';
+import 'accessor.dart';
 
+/// A set of primitives to be rendered. Its global transform is defined by a
+/// [Node] that references it.
 class Mesh extends GLTFBase {
+
+  /// An array of primitives, each defining geometry to be rendered.
   List<Primitive> primitives;
+
+  /// Array of weights to be applied to the morph targets. The number of array
+  /// elements MUST match the number of morph targets.
   List<double>? weights;
+
+  /// The user-defined name of this object. This is not necessarily unique,
+  /// e.g., an accessor and a buffer could have the same name, or two accessors
+  /// could even have the same name.
   String? name;
 
   Mesh({
@@ -14,11 +28,26 @@ class Mesh extends GLTFBase {
   });
 }
 
+/// Geometry to be rendered with the given [Material].
 class Primitive extends GLTFBase {
+
+  /// A plain JSON object, where each key corresponds to a mesh attribute
+  /// semantic and each value is the index of the accessor containing
+  /// attribute’s data.
   Map<String, int> attributes;
+
+  /// The index of the [Accessor] that contains the vertex indices. When this is
+  /// undefined, the primitive defines non-indexed geometry. When defined, the
+  /// [Accessor] MUST have SCALAR type and an unsigned integer component type.
   int? indices;
+
+  /// The index of the [Material] to apply to this primitive when rendering.
   int? material;
+
+  /// The topology type of primitives to render.
   PrimitiveMode mode;
+
+  /// An array of morph targets.
   List<Object>? targets;
 
   Primitive({
@@ -77,6 +106,7 @@ class Primitive extends GLTFBase {
   }
 }
 
+/// The topology type of primitives to render.
 enum PrimitiveMode {
   points,
   lines,

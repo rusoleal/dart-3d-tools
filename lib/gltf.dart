@@ -16,8 +16,13 @@ import 'scene.dart';
 import 'utils.dart';
 import 'skin.dart';
 
+/// Base class for all gltf elements
 class GLTFBase {
+
+  /// JSON object with extension-specific objects.
   dynamic extensions;
+
+  /// Application-specific data.
   dynamic extras;
 
   GLTFBase({this.extensions, this.extras});
