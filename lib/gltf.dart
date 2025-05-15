@@ -440,7 +440,7 @@ class GLTF extends GLTFBase {
       throw Exception('Unsupported GLB version: $version');
     }
 
-    var jsonChunk = loadGLBChunk(data, 12);
+    var jsonChunk = _loadGLBChunk(data, 12);
     String json = utf8.decode(jsonChunk.$1);
     Uint8List? binaryChunk;
     int binaryChunkOffset = 12 + 8 + jsonChunk.$1.length;
@@ -448,7 +448,7 @@ class GLTF extends GLTFBase {
       binaryChunkOffset += 4 - (binaryChunkOffset & 3);
     }
     if (binaryChunkOffset < data.length) {
-      binaryChunk = loadGLBChunk(data, binaryChunkOffset).$1;
+      binaryChunk = _loadGLBChunk(data, binaryChunkOffset).$1;
     }
     //print('${binaryChunk!.length}');
 
@@ -462,7 +462,7 @@ class GLTF extends GLTFBase {
     });
   }
 
-  static (Uint8List, int) loadGLBChunk(Uint8List data, int offset) {
+  static (Uint8List, int) _loadGLBChunk(Uint8List data, int offset) {
     var chunkHeader = data.buffer.asUint32List(offset, 8);
     int chunkLength = chunkHeader[0];
     int chunkType = chunkHeader[1];
