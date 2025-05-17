@@ -1,3 +1,7 @@
+import 'package:gltf_loader/khr_materials_ior.dart';
+import 'package:gltf_loader/khr_materials_specular.dart';
+import 'package:gltf_loader/khr_texture_transform.dart';
+
 import 'utils.dart';
 import 'package:vector_math/vector_math.dart';
 
@@ -8,7 +12,6 @@ import 'texture.dart';
 /// The material’s alpha rendering mode enumeration specifying
 /// the interpretation of the alpha value of the base color.
 enum AlphaMode {
-
   /// The alpha value is ignored, and the rendered output is fully opaque.
   opaque,
 
@@ -21,12 +24,11 @@ enum AlphaMode {
   /// The alpha value is used to composite the source and destination areas.
   /// The rendered output is combined with the background using the normal
   /// painting operation (i.e. the Porter and Duff over operator).
-  blend
+  blend,
 }
 
 /// The material appearance of a [Primitive].
 class Material extends GLTFBase {
-
   /// The user-defined name of this object. This is not necessarily unique,
   /// e.g., an accessor and a buffer could have the same name, or two accessors
   /// could even have the same name.
@@ -82,6 +84,12 @@ class Material extends GLTFBase {
   /// its normals reversed before the lighting equation is evaluated.
   bool doubleSided;
 
+  /// KHR_materials_specular
+  KHRMaterialSpecular? khrMaterialSpecular;
+
+  /// KHR_materials_ior
+  KHRMaterialIor? khrMaterialIor;
+
   Material({
     this.name,
     this.pbrMetallicRoughness,
@@ -94,13 +102,14 @@ class Material extends GLTFBase {
     this.doubleSided = false,
     super.extensions,
     super.extras,
+    this.khrMaterialSpecular,
+    this.khrMaterialIor,
   }) : emissiveFactor = emissiveFactor ?? Vector3.zero();
 }
 
 /// A set of parameter values that are used to define the metallic-roughness
 /// material model from Physically Based Rendering (PBR) methodology.
 class PBRMetallicRoughness extends GLTFBase {
-
   /// The factors for the base color of the material. This value defines linear
   /// multipliers for the sampled texels of the base color texture.
   Vector4 baseColorFactor;
@@ -169,7 +178,6 @@ class PBRMetallicRoughness extends GLTFBase {
 
 /// Base class for texture base information.
 class TextureInfo extends GLTFBase {
-
   /// The index of the [Texture].
   int index;
 
@@ -180,9 +188,12 @@ class TextureInfo extends GLTFBase {
   /// for the material to be applicable to it.
   int texCoord;
 
+  KHRTextureTransform? khrTextureTransform;
+
   TextureInfo({
     required this.index,
     this.texCoord = 0,
+    this.khrTextureTransform,
     super.extensions,
     super.extras,
   });
@@ -193,7 +204,27 @@ class TextureInfo extends GLTFBase {
     }
     int index = data['index'];
     int texCoord = data['texCoord'] ?? 0;
-    return TextureInfo(index: index, texCoord: texCoord);
+
+    KHRTextureTransform? khrTextureTransform;
+
+    var extensions = data['extensions'];
+    if (extensions != null) {
+      var khrTextureTransformData = extensions['KHR_texture_transform'];
+      Vector2? offset = vec2FromGLTF(khrTextureTransformData['offset']);
+      double? rotation = khrTextureTransformData['rotation'];
+      Vector2? scale = vec2FromGLTF(khrTextureTransformData['scale']);
+      khrTextureTransform = KHRTextureTransform(
+        offset: offset,
+        rotation: rotation,
+        scale: scale,
+      );
+    }
+
+    return TextureInfo(
+      index: index,
+      texCoord: texCoord,
+      khrTextureTransform: khrTextureTransform,
+    );
   }
 }
 
@@ -205,7 +236,6 @@ class TextureInfo extends GLTFBase {
 /// The normal vectors use the convention +X is right and +Y is up. +Z points
 /// toward the viewer. If a fourth component (A) is present, it MUST be ignored.
 class NormalTextureInfo extends TextureInfo {
-
   /// The scalar parameter applied to each normal vector of the texture. This
   /// value scales the normal vector in X and Y directions using the formula:
   /// scaledNormal = normalize<sampled normal texture value> * 2.0 - 1.0) *
@@ -226,7 +256,7 @@ class NormalTextureInfo extends TextureInfo {
     }
     int index = data['index'];
     int texCoord = data['texCoord'] ?? 0;
-    double scale = data['scale'] ?? 1.0;
+    double scale = ((data['scale'] as num?) ?? 1.0).toDouble();
     return NormalTextureInfo(index: index, texCoord: texCoord, scale: scale);
   }
 }
@@ -239,7 +269,6 @@ class NormalTextureInfo extends TextureInfo {
 /// values indicate no indirect lighting. If other channels are present (GBA),
 /// they MUST be ignored for occlusion calculations.
 class OcclusionTextureInfo extends TextureInfo {
-
   /// A scalar parameter controlling the amount of occlusion applied. A value
   /// of 0.0 means no occlusion. A value of 1.0 means full occlusion. This value
   /// affects the final occlusion value as:

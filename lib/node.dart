@@ -18,7 +18,6 @@ import 'mesh.dart';
 /// When a node is targeted for animation (referenced by an
 /// [AnimationChannelTarget]), matrix MUST NOT be present.
 class Node extends GLTFBase {
-
   /// The index of the [Camera] referenced by this node.
   int? camera;
 
@@ -57,6 +56,9 @@ class Node extends GLTFBase {
   /// could even have the same name.
   String? name;
 
+  /// KHR_lights_punctual extension.
+  int? khrLightPunctual;
+
   Node({
     this.camera,
     this.children,
@@ -68,6 +70,7 @@ class Node extends GLTFBase {
     Vector3? translation,
     List<double>? weights,
     this.name,
+    this.khrLightPunctual,
     super.extensions,
     super.extras,
   }) : matrix = matrix ?? Matrix4.identity(),

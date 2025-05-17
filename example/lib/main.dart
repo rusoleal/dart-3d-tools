@@ -56,7 +56,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
+  String? error;
   GLTF? obj;
 
   @override
@@ -70,48 +70,52 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('Load a glTF file'),
-            Text(
-              '',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Text(obj?.toString() ?? error ?? 'Load glTF object'),
+            Text('', style: Theme.of(context).textTheme.headlineMedium),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           TextEditingController controller = TextEditingController();
-          String? result = await showDialog<String?>(context: context, builder: (context) {
-            return Material(
-              color: Colors.transparent,
-              child: AlertDialog.adaptive(
+          String? result = await showAdaptiveDialog<String?>(
+            context: context,
+            barrierDismissible: true,
+            builder: (context) {
+              return AlertDialog(
                 title: Text('glTF url'),
-                content: TextField(controller: controller,),
+                content: TextField(controller: controller),
                 actions: [
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context,controller.text);
+                      Navigator.pop(context, controller.text);
                     },
                     child: Text('Ok'),
                   ),
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context,);
+                      Navigator.pop(context);
                     },
                     child: Text('Cancel'),
                   ),
                 ],
-              ),
-            );
-          },);
+              );
+            },
+          );
           if (result != null) {
             Uri uri = Uri.parse(result);
             var response = await http.get(uri);
-            obj = await GLTF.loadGLTF(response.body, (asset_uri) async {
-              print('Loading asset: $asset_uri');
-              var response = await http.get(uri.resolve(asset_uri!));
+            //try {
+            obj = await GLTF.loadGLTF(response.body, (assetUri) async {
+              print('Loading asset: $assetUri');
+              var response = await http.get(uri.resolve(assetUri!));
               return response.bodyBytes;
-            },);
+            });
+            error = null;
+            //} catch (e) {
+            //  obj = null;
+            //  error = e.toString();
+            //}
             setState(() {});
           }
         },

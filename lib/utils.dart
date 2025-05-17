@@ -1,9 +1,21 @@
+import 'package:gltf_loader/khr_lights_punctual.dart';
+
 import 'sampler.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'animation.dart';
 import 'buffer_view.dart';
 import 'material.dart';
+
+Vector2? vec2FromGLTF(List<dynamic>? vec) {
+  if (vec == null) {
+    return null;
+  }
+  if (vec.length != 2) {
+    throw Exception('Vector2 must have 2 elements');
+  }
+  return Vector2(vec[0].toDouble(), vec[1].toDouble());
+}
 
 Vector3? vec3FromGLTF(List<dynamic>? vec) {
   if (vec == null) {
@@ -60,7 +72,7 @@ List<double>? doubleListFromGLTF(List<dynamic>? list) {
   if (list == null) {
     return null;
   }
-  return list.map((e) => e as double).toList();
+  return list.map((e) => (e as num).toDouble()).toList();
 }
 
 List<int>? intListFromGLTF(List<dynamic>? list) {
@@ -162,5 +174,18 @@ BufferViewTarget? bufferViewTargetFromGLTF(int? mode) {
       return BufferViewTarget.elementArrayBuffer;
     default:
       throw Exception('Unsupported buffer view target: $mode');
+  }
+}
+
+KHRLightPunctualType khrLightPunctualTypeFromString(String name) {
+  switch (name) {
+    case 'directional':
+      return KHRLightPunctualType.directional;
+    case 'point':
+      return KHRLightPunctualType.point;
+    case 'spot':
+      return KHRLightPunctualType.spot;
+    default:
+      throw Exception('Unsupported khr light punctual type: $name');
   }
 }

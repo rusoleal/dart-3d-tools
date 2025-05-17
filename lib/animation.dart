@@ -1,3 +1,5 @@
+import 'package:gltf_loader/khr_animation_pointer.dart';
+
 import 'utils.dart';
 import 'gltf.dart';
 import 'sampler.dart';
@@ -6,7 +8,6 @@ import 'accessor.dart';
 
 /// A keyframe animation.
 class Animation extends GLTFBase {
-
   /// An array of [AnimationChannel]. An [AnimationChannel] combines an
   /// animation sampler with a target property being animated. Different
   /// channels of the same animation MUST NOT have the same targets.
@@ -33,7 +34,6 @@ class Animation extends GLTFBase {
 /// An animation channel combines an animation sampler with a target property
 /// being animated.
 class AnimationChannel extends GLTFBase {
-
   /// The index of a [Sampler] in this animation used to compute the value for
   /// the target, e.g., a [Node]’s translation, rotation, or scale (TRS).
   int sampler;
@@ -59,7 +59,6 @@ class AnimationChannel extends GLTFBase {
 
 /// The descriptor of the animated property.
 class AnimationChannelTarget extends GLTFBase {
-
   /// The index of the [Node] to animate. When undefined, the animated object
   /// MAY be defined by an extension.
   int? node;
@@ -72,24 +71,42 @@ class AnimationChannelTarget extends GLTFBase {
   /// values are the scaling factors along the X, Y, and Z axes.
   String path;
 
+  /// KHR_animation_pointer
+  KHRAnimationPointer? khrAnimationPointer;
+
   AnimationChannelTarget({
     this.node,
     required this.path,
     super.extensions,
+    this.khrAnimationPointer,
     super.extras,
   });
 
   static AnimationChannelTarget fromGLTF(Map<String, dynamic> data) {
     int? node = data['node'];
     String path = data['path'];
-    return AnimationChannelTarget(node: node, path: path);
+
+    KHRAnimationPointer? khrAnimationPointer;
+
+    var extensions = data['extensions'];
+    if (extensions != null) {
+      var khrAnimationPointerExt = extensions['KHR_animation_pointer'];
+      if (khrAnimationPointerExt != null) {
+        String pointer = khrAnimationPointerExt['pointer'];
+        khrAnimationPointer = KHRAnimationPointer(pointer: pointer);
+      }
+    }
+    return AnimationChannelTarget(
+      node: node,
+      path: path,
+      khrAnimationPointer: khrAnimationPointer,
+    );
   }
 }
 
 /// An animation sampler combines timestamps with a sequence of output values
 /// and defines an interpolation algorithm.
 class AnimationSampler extends GLTFBase {
-
   /// The index of an [Accessor] containing keyframe timestamps.
   ///
   /// The accessor MUST be of scalar type with floating-point components. The
@@ -127,7 +144,6 @@ class AnimationSampler extends GLTFBase {
 
 /// Interpolation algorithm.
 enum AnimationInterpolation {
-
   /// The animated values are linearly interpolated between keyframes. When
   /// targeting a rotation, spherical linear interpolation (slerp) SHOULD be
   /// used to interpolate quaternions. The number of output elements MUST equal
@@ -144,5 +160,5 @@ enum AnimationInterpolation {
   /// the number of input elements. For each input element, the output stores
   /// three elements, an in-tangent, a spline vertex, and an out-tangent.
   /// There MUST be at least two keyframes when using this interpolation.
-  cubicSpline
+  cubicSpline,
 }

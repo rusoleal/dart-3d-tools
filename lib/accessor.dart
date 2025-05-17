@@ -17,7 +17,6 @@ enum AccessorType { scalar, vec2, vec3, vec4, mat2, mat3, mat4 }
 
 /// A typed view into a buffer view that contains raw binary data.
 class Accessor extends GLTFBase {
-
   /// The index of the [BufferView]. When undefined, the accessor MUST be
   /// initialized with zeros; [sparse] property or extensions MAY override zeros
   /// with actual values.

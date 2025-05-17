@@ -6,7 +6,6 @@ import 'accessor.dart';
 /// A set of primitives to be rendered. Its global transform is defined by a
 /// [Node] that references it.
 class Mesh extends GLTFBase {
-
   /// An array of primitives, each defining geometry to be rendered.
   List<Primitive> primitives;
 
@@ -30,7 +29,6 @@ class Mesh extends GLTFBase {
 
 /// Geometry to be rendered with the given [Material].
 class Primitive extends GLTFBase {
-
   /// A plain JSON object, where each key corresponds to a mesh attribute
   /// semantic and each value is the index of the accessor containing
   /// attribute’s data.

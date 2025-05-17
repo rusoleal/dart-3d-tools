@@ -3,7 +3,6 @@ import 'accessor.dart';
 
 /// A view into a buffer generally representing a subset of the buffer.
 class BufferView extends GLTFBase {
-
   /// The index of the buffer.
   int buffer;
 

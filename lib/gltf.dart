@@ -1,9 +1,16 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:gltf_loader/ext_texture_webp.dart';
+import 'package:gltf_loader/khr_lights_punctual.dart';
+import 'package:gltf_loader/khr_materials_specular.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'animation.dart';
+import 'buffer.dart';
+import 'image.dart';
+import 'khr_materials_ior.dart';
 import 'material.dart';
 import 'mesh.dart';
 import 'sampler.dart';
@@ -18,7 +25,6 @@ import 'skin.dart';
 
 /// Base class for all gltf elements
 class GLTFBase {
-
   /// JSON object with extension-specific objects.
   dynamic extensions;
 
@@ -29,10 +35,21 @@ class GLTFBase {
 }
 
 class GLTF extends GLTFBase {
-  List<Uint8List> buffers;
+  static const List<String> implementedExtensions = [
+    'KHR_animation_pointer',
+    'KHR_lights_punctual',
+    'KHR_materials_specular',
+    'KHR_materials_ior',
+    'KHR_texture_transform',
+    'EXT_texture_webp',
+  ];
+
+  final Future<Uint8List> Function(String? uri) _onLoadData;
+
+  List<Buffer> buffers;
   List<BufferView> bufferViews; // typed_data
   List<Accessor> accessors;
-  List<ui.Image> images;
+  List<Image> images;
   List<Texture> textures;
   List<Scene> scenes;
   List<Node> nodes;
@@ -42,11 +59,17 @@ class GLTF extends GLTFBase {
   List<Animation> animations;
   List<Camera> cameras;
   List<Skin> skins;
+  List<KHRLightPunctual> khrLightsPunctual;
+
+  // runtime data
+  late List<ui.Image?> _runtimeImages;
+  late List<Uint8List?> _runtimeBuffers;
 
   GLTF({
-    List<Uint8List>? buffers,
+    required Future<Uint8List> Function(String? uri) onLoadData,
+    List<Buffer>? buffers,
     List<BufferView>? bufferViews,
-    List<ui.Image>? images,
+    List<Image>? images,
     List<Texture>? textures,
     List<Accessor>? accessors,
     List<Scene>? scenes,
@@ -57,6 +80,7 @@ class GLTF extends GLTFBase {
     List<Animation>? animations,
     List<Camera>? cameras,
     List<Skin>? skins,
+    List<KHRLightPunctual>? khrLightsPunctual,
     super.extensions,
     super.extras,
   }) : buffers = buffers ?? [],
@@ -71,7 +95,95 @@ class GLTF extends GLTFBase {
        materials = materials ?? [],
        animations = animations ?? [],
        cameras = cameras ?? [],
-       skins = skins ?? [];
+       skins = skins ?? [],
+       khrLightsPunctual = khrLightsPunctual ?? [],
+       _onLoadData = onLoadData {
+    _runtimeImages = List.filled(this.images.length, null);
+    _runtimeBuffers = List.filled(this.buffers.length, null);
+  }
+
+  Future<Uint8List> _loadAsset(String? uri) async {
+    print('Loading asset: $uri');
+    return await _onLoadData(uri);
+  }
+
+  /// clear runtime buffers and textures.
+  void clearRuntimeData() {
+    for (int a = 0; a < _runtimeBuffers.length; a++) {
+      _runtimeBuffers[a] = null;
+    }
+
+    for (int a = 0; a < _runtimeImages.length; a++) {
+      _runtimeImages[a] = null;
+    }
+  }
+
+  /// load data from buffer at [bufferIndex]
+  Future<void> loadBuffer(int bufferIndex) async {
+    // finish if bufferIndex is out of range or buffer is already loaded
+    if (bufferIndex < 0 ||
+        bufferIndex >= buffers.length ||
+        _runtimeBuffers[bufferIndex] != null) {
+      return;
+    }
+
+    var data = await _loadAsset(buffers[bufferIndex].uri);
+    _runtimeBuffers[bufferIndex] = data;
+  }
+
+  Future<void> loadImage(int imageIndex) async {
+    // finish if bufferIndex is out of range or buffer is already loaded
+    if (imageIndex < 0 ||
+        imageIndex >= buffers.length ||
+        _runtimeImages[imageIndex] != null) {
+      return;
+    }
+
+    var image = images[imageIndex];
+
+    Uint8List data;
+    if (image.uri != null) {
+      data = await _loadAsset(image.uri);
+    } else {
+      var bufferView = bufferViews[image.bufferView!];
+
+      // check if buffer is already loaded
+      if (_runtimeBuffers[bufferView.buffer] == null) {
+        await loadBuffer(bufferView.buffer);
+      }
+      var buffer = _runtimeBuffers[bufferView.buffer]!;
+      data = buffer.buffer.asUint8List(
+        buffer.offsetInBytes + bufferView.offset,
+        bufferView.length,
+      );
+    }
+
+    ui.Codec codec = await ui.instantiateImageCodec(data);
+    _runtimeImages[imageIndex] = (await codec.getNextFrame()).image;
+  }
+
+  /// load assets needed to render scene at [sceneIndex]
+  void loadScene(int sceneIndex) {
+    // TODO: load assets needed to render scene
+  }
+
+  @override
+  String toString() {
+    return 'Buffers: ${buffers.length}\n'
+        'BufferViews: ${bufferViews.length}\n'
+        'Images: ${images.length}\n'
+        'Textures: ${textures.length}\n'
+        'Accessors: ${accessors.length}\n'
+        'Scenes: ${scenes.length}\n'
+        'Nodes: ${nodes.length}\n'
+        'Samplers: ${samplers.length}\n'
+        'Meshes: ${meshes.length}\n'
+        'Materials: ${materials.length}\n'
+        'Animations: ${animations.length}\n'
+        'Cameras: ${cameras.length}\n'
+        'Skins: ${skins.length}\n'
+        'KHR_lights_punctual: ${khrLightsPunctual.length}';
+  }
 
   static Future<GLTF> loadGLTF(
     String data,
@@ -86,17 +198,26 @@ class GLTF extends GLTFBase {
       throw Exception('Unsupported GLTF version: $major.$minor');
     }
 
-    // Buffers
-    List<Uint8List> buffers = [];
-    List<dynamic> buffersDef = json['buffers'] ?? [];
-    List<Future<Uint8List>> bufferLoaders = [];
-    for (var buffer in buffersDef) {
-      //int byteLength = buffer['byteLength'];
-      String? uri = buffer['uri'];
-      //print(uri);
-      bufferLoaders.add(onLoadData(uri));
+    List<dynamic>? extensionsRequired = json['extensionsRequired'];
+    if (extensionsRequired != null) {
+      for (var required in extensionsRequired) {
+        if (!implementedExtensions.contains(required)) {
+          throw Exception('Unsupported required extension: $required');
+        }
+      }
     }
-    buffers = await Future.wait(bufferLoaders);
+
+    // Buffers
+    List<Buffer> buffers = [];
+    List<dynamic> buffersDef = json['buffers'] ?? [];
+    //List<Future<Uint8List>> bufferLoaders = [];
+    for (var buffer in buffersDef) {
+      int byteLength = buffer['byteLength'];
+      String? uri = buffer['uri'];
+      String? name = buffer['name'];
+      buffers.add(Buffer(uri: uri, byteLength: byteLength, name: name));
+    }
+    //buffers = await Future.wait(bufferLoaders);
 
     // BufferViews
     List<BufferView> bufferViews = [];
@@ -236,13 +357,20 @@ class GLTF extends GLTFBase {
       }
     }
 
-    List<ui.Image> images = [];
+    List<Image> images = [];
     List<dynamic> imagesDef = json['images'] ?? [];
-    List<Future<Uint8List>> imageLoaders = [];
+    //List<Future<Uint8List>> imageLoaders = [];
     for (var image in imagesDef) {
       String? uri = image['uri'];
+      String? mimeType = image['mimeType'];
       int? bufferView = image['bufferView'];
-      if (uri != null) {
+      String? name = image['name'];
+
+      images.add(
+        Image(uri: uri, mimeType: mimeType, bufferView: bufferView, name: name),
+      );
+
+      /*if (uri != null) {
         imageLoaders.add(onLoadData(uri));
       } else {
         var buffer = buffers[bufferViews[bufferView!].buffer];
@@ -253,13 +381,13 @@ class GLTF extends GLTFBase {
           length,
         );
         imageLoaders.add(Future.value(imageBuffer));
-      }
+      }*/
     }
-    List<Uint8List> imageData = await Future.wait(imageLoaders);
+    /*List<Uint8List> imageData = await Future.wait(imageLoaders);
     for (var data in imageData) {
       ui.Codec codec = await ui.instantiateImageCodec(data);
       images.add((await codec.getNextFrame()).image);
-    }
+    }*/
 
     List<Texture> textures = [];
     List<dynamic> texturesDef = json['textures'] ?? [];
@@ -267,7 +395,26 @@ class GLTF extends GLTFBase {
       int? sampler = texture['sampler'];
       int? source = texture['source'];
       String? name = texture['name'];
-      textures.add(Texture(sampler: sampler, source: source, name: name));
+
+      EXTTextureWebp? extTextureWebp;
+
+      var extensions = texture['extensions'];
+      if (extensions != null) {
+        var extTextureWebpDef = extensions['EXT_texture_webp'];
+        if (extTextureWebpDef != null) {
+          int source = extTextureWebpDef['source'];
+          extTextureWebp = EXTTextureWebp(source: source);
+        }
+      }
+
+      textures.add(
+        Texture(
+          sampler: sampler,
+          source: source,
+          name: name,
+          extTextureWebp: extTextureWebp,
+        ),
+      );
     }
 
     List<Sampler> samplers = [];
@@ -311,6 +458,39 @@ class GLTF extends GLTFBase {
       double alphaCutoff = material['alphaCutoff'] ?? 0.5;
       bool doubleSided = material['doubleSided'] ?? false;
 
+      KHRMaterialSpecular? khrMaterialSpecular;
+      KHRMaterialIor? khrMaterialIor;
+
+      var extensions = material['extensions'];
+      if (extensions != null) {
+        var specularExt = extensions['KHR_materials_specular'];
+        if (specularExt != null) {
+          double specularFactor =
+              ((specularExt['specularFactor'] as num?) ?? 1.0).toDouble();
+          TextureInfo? specularTexture = TextureInfo.fromGLTF(
+            specularExt['specularTexture'],
+          );
+          Vector3 specularColorFactor =
+              vec3FromGLTF(specularExt['specularColorFactor']) ??
+              Vector3.all(1.0);
+          TextureInfo? specularColorTexture = TextureInfo.fromGLTF(
+            specularExt['specularColorTexture'],
+          );
+          khrMaterialSpecular = KHRMaterialSpecular(
+            specularFactor: specularFactor,
+            specularTexture: specularTexture,
+            khrMaterialsSpecularSpecularColorFactor: specularColorFactor,
+            specularColorTexture: specularColorTexture,
+          );
+        }
+
+        var iorExt = extensions['KHR_materials_ior'];
+        if (iorExt != null) {
+          double ior = ((iorExt['ior'] as num?) ?? 1.0).toDouble();
+          khrMaterialIor = KHRMaterialIor(ior: ior);
+        }
+      }
+
       materials.add(
         Material(
           name: name,
@@ -322,6 +502,8 @@ class GLTF extends GLTFBase {
           alphaMode: alphaMode,
           alphaCutoff: alphaCutoff,
           doubleSided: doubleSided,
+          khrMaterialSpecular: khrMaterialSpecular,
+          khrMaterialIor: khrMaterialIor,
         ),
       );
     }
@@ -352,6 +534,17 @@ class GLTF extends GLTFBase {
       Vector3 translation = vec3FromGLTF(node['translation']) ?? Vector3.zero();
       List<double>? weights = doubleListFromGLTF(node['weights']);
       String? name = node['name'];
+
+      int? khrLightPunctual;
+      var extensions = node['extensions'];
+      if (extensions != null) {
+        var khrLightPunctualDef = extensions['KHR_lights_punctual'];
+        if (khrLightPunctualDef != null) {
+          khrLightPunctual = khrLightPunctualDef['light'];
+          //print('Node: $node light: $khrLightPunctual');
+        }
+      }
+
       nodes.add(
         Node(
           camera: camera,
@@ -364,6 +557,7 @@ class GLTF extends GLTFBase {
           translation: translation,
           weights: weights,
           name: name,
+          khrLightPunctual: khrLightPunctual,
         ),
       );
     }
@@ -410,7 +604,40 @@ class GLTF extends GLTFBase {
       );
     }
 
+    List<KHRLightPunctual> khrLightsPunctual = [];
+    Map<String, dynamic>? extensions = json['extensions'];
+    if (extensions != null) {
+      Map<String, dynamic>? khrLightsPunctualDef =
+          extensions['KHR_lights_punctual'];
+      if (khrLightsPunctualDef != null) {
+        List<dynamic> lights = khrLightsPunctualDef['lights'] ?? [];
+        for (var light in lights) {
+          String name = light['name'] ?? '';
+          Vector3 color = vec3FromGLTF(light['color']) ?? Vector3.all(1.0);
+          num intensity = light['intensity'] ?? 1.0;
+          KHRLightPunctualType type = khrLightPunctualTypeFromString(
+            light['type'],
+          );
+          num? range = light['range'] as num?;
+          num innerConeAngle = light['innerConeAngle'] ?? 0.0;
+          num outerConeAngle = light['outerConeAngle'] ?? pi / 4.0;
+          khrLightsPunctual.add(
+            KHRLightPunctual(
+              name: name,
+              color: color,
+              intensity: intensity.toDouble(),
+              type: type,
+              range: range?.toDouble(),
+              innerConeAngle: innerConeAngle.toDouble(),
+              outerConeAngle: outerConeAngle.toDouble(),
+            ),
+          );
+        }
+      }
+    }
+
     return GLTF(
+      onLoadData: onLoadData,
       buffers: buffers,
       bufferViews: bufferViews,
       accessors: accessors,
@@ -424,6 +651,7 @@ class GLTF extends GLTFBase {
       scenes: scenes,
       skins: skins,
       animations: animations,
+      khrLightsPunctual: khrLightsPunctual,
     );
   }
 
