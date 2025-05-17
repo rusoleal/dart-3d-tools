@@ -1,3 +1,7 @@
+## 0.0.6
+
+* fix loadImage() index check
+
 ## 0.0.5
 
 * expose public getters for GLTF.runtimeImages and GLTF.runtimeBuffers

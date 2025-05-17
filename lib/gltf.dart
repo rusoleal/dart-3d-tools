@@ -143,7 +143,7 @@ class GLTF extends GLTFBase {
   Future<void> loadImage(int imageIndex) async {
     // finish if bufferIndex is out of range or buffer is already loaded
     if (imageIndex < 0 ||
-        imageIndex >= buffers.length ||
+        imageIndex >= images.length ||
         _runtimeImages[imageIndex] != null) {
       return;
     }

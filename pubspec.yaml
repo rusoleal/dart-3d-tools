@@ -1,6 +1,6 @@
 name: gltf_loader
 description: "Pure dart glTF 2.0 Specification loader utility with dynamic asset loading"
-version: 0.0.5
+version: 0.0.6
 homepage: https://github.com/rusoleal/dart-3d-tools
 topics:
   - gltf
