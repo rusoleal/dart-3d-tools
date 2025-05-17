@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'gltf.dart';
 import 'node.dart';
-import 'Scene.dart';
+import 'scene.dart';
 
 /// A camera’s projection. A [Node] MAY reference a camera to apply a transform
 /// to place the camera in the [Scene].

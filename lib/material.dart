@@ -182,7 +182,7 @@ class TextureInfo extends GLTFBase {
   int index;
 
   /// This integer value is used to construct a string in the format
-  /// TEXCOORD_<set index> which is a reference to a key in
+  /// TEXCOORD_&lt;set index&gt; which is a reference to a key in
   /// mesh.primitives.attributes (e.g. a value of 0 corresponds to TEXCOORD_0).
   /// A mesh primitive MUST have the corresponding texture coordinate attributes
   /// for the material to be applicable to it.
@@ -238,8 +238,8 @@ class TextureInfo extends GLTFBase {
 class NormalTextureInfo extends TextureInfo {
   /// The scalar parameter applied to each normal vector of the texture. This
   /// value scales the normal vector in X and Y directions using the formula:
-  /// scaledNormal = normalize<sampled normal texture value> * 2.0 - 1.0) *
-  /// vec3(<normal scale>, <normal scale>, 1.0).
+  /// scaledNormal = normalize&lt;sampled normal texture value&gt; * 2.0 - 1.0) *
+  /// vec3(&lt;normal scale&gt;, &lt;normal scale&gt;, 1.0).
   double scale;
 
   NormalTextureInfo({
@@ -272,7 +272,7 @@ class OcclusionTextureInfo extends TextureInfo {
   /// A scalar parameter controlling the amount of occlusion applied. A value
   /// of 0.0 means no occlusion. A value of 1.0 means full occlusion. This value
   /// affects the final occlusion value as:
-  /// 1.0 + strength * (<sampled occlusion texture value> - 1.0).
+  /// 1.0 + strength * (&lt;sampled occlusion texture value&gt; - 1.0).
   double strength;
 
   OcclusionTextureInfo({

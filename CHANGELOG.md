@@ -1,3 +1,9 @@
+## 0.0.4
+
+* fix documentation format issues
+* added package topics
+* fix Scene.dart incorrect name
+
 ## 0.0.3
 
 * 2.0 glTF spec conformant.
