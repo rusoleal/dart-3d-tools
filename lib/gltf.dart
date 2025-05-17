@@ -102,6 +102,12 @@ class GLTF extends GLTFBase {
     _runtimeBuffers = List.filled(this.buffers.length, null);
   }
 
+  /// runtime image list. Call [loadImage] to load images.
+  List<ui.Image?> get runtimeImages => List.unmodifiable(_runtimeImages);
+
+  /// runtime buffer list. Call [loadBuffer] to load buffers.
+  List<Uint8List?> get runtimeBuffers => List.unmodifiable(_runtimeBuffers);
+
   Future<Uint8List> _loadAsset(String? uri) async {
     print('Loading asset: $uri');
     return await _onLoadData(uri);
@@ -118,7 +124,8 @@ class GLTF extends GLTFBase {
     }
   }
 
-  /// load data from buffer at [bufferIndex]
+  /// load data from buffer at [bufferIndex].
+  /// This method load a buffer and store it in [runtimeBuffers] at [bufferIndex].
   Future<void> loadBuffer(int bufferIndex) async {
     // finish if bufferIndex is out of range or buffer is already loaded
     if (bufferIndex < 0 ||
@@ -131,6 +138,8 @@ class GLTF extends GLTFBase {
     _runtimeBuffers[bufferIndex] = data;
   }
 
+  /// load runtime image at [imageIndex].
+  /// This method load image and store it in [runtimeImages] at [imageIndex].
   Future<void> loadImage(int imageIndex) async {
     // finish if bufferIndex is out of range or buffer is already loaded
     if (imageIndex < 0 ||

@@ -1,3 +1,7 @@
+## 0.0.5
+
+* expose public getters for GLTF.runtimeImages and GLTF.runtimeBuffers
+
 ## 0.0.4
 
 * fix documentation format issues
