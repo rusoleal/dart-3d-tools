@@ -171,9 +171,126 @@ class GLTF extends GLTFBase {
     _runtimeImages[imageIndex] = (await codec.getNextFrame()).image;
   }
 
+  void _updateImagesToLoadFromTexture(
+    List<bool> imagesToLoad,
+    Texture texture,
+  ) {
+    int? imageIndex;
+    if (texture.extTextureWebp != null) {
+      imageIndex = texture.extTextureWebp!.source;
+    } else {
+      imageIndex = texture.source;
+    }
+    if (imageIndex != null && _runtimeImages[imageIndex] == null) {
+      imagesToLoad[imageIndex] = true;
+    }
+  }
+
   /// load assets needed to render scene at [sceneIndex]
-  void loadScene(int sceneIndex) {
-    // TODO: load assets needed to render scene
+  Future<void> loadScene(int sceneIndex) async {
+    if (sceneIndex < 0 || sceneIndex >= scenes.length) {
+      return;
+    }
+
+    List<bool> imagesToLoad = List.filled(images.length, false);
+    List<bool> buffersToLoad = List.filled(buffers.length, false);
+
+    Scene scene = scenes[sceneIndex];
+    if (scene.nodes != null) {
+      for (int nodeIndex in scene.nodes!) {
+        Node node = nodes[nodeIndex];
+        if (node.mesh != null) {
+          Mesh mesh = meshes[node.mesh!];
+          for (var primitive in mesh.primitives) {
+            if (primitive.material != null) {
+              Material material = materials[primitive.material!];
+
+              if (material.emissiveTexture != null) {
+                var textureIndex = material.emissiveTexture!.index;
+                _updateImagesToLoadFromTexture(
+                  imagesToLoad,
+                  textures[textureIndex],
+                );
+              }
+
+              if (material.normalTexture != null) {
+                var textureIndex = material.normalTexture!.index;
+                _updateImagesToLoadFromTexture(
+                  imagesToLoad,
+                  textures[textureIndex],
+                );
+              }
+
+              if (material.occlusionTexture != null) {
+                var textureIndex = material.occlusionTexture!.index;
+                _updateImagesToLoadFromTexture(
+                  imagesToLoad,
+                  textures[textureIndex],
+                );
+              }
+
+              if (material.pbrMetallicRoughness != null) {
+                if (material.pbrMetallicRoughness!.baseColorTexture != null) {
+                  var textureIndex =
+                      material.pbrMetallicRoughness!.baseColorTexture!.index;
+                  _updateImagesToLoadFromTexture(
+                    imagesToLoad,
+                    textures[textureIndex],
+                  );
+                }
+
+                if (material.pbrMetallicRoughness!.metallicRoughnessTexture !=
+                    null) {
+                  var textureIndex =
+                      material
+                          .pbrMetallicRoughness!
+                          .metallicRoughnessTexture!
+                          .index;
+                  _updateImagesToLoadFromTexture(
+                    imagesToLoad,
+                    textures[textureIndex],
+                  );
+                }
+              }
+
+              if (material.khrMaterialSpecular != null) {
+                if (material.khrMaterialSpecular!.specularColorTexture !=
+                    null) {
+                  var textureIndex =
+                      material.khrMaterialSpecular!.specularColorTexture!.index;
+                  _updateImagesToLoadFromTexture(
+                    imagesToLoad,
+                    textures[textureIndex],
+                  );
+                }
+
+                if (material.khrMaterialSpecular!.specularTexture != null) {
+                  var textureIndex =
+                      material.khrMaterialSpecular!.specularTexture!.index;
+                  _updateImagesToLoadFromTexture(
+                    imagesToLoad,
+                    textures[textureIndex],
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    List<Future> futures = [];
+    for (int a = 0; a < imagesToLoad.length; a++) {
+      if (imagesToLoad[a]) {
+        futures.add(loadImage(a));
+      }
+    }
+    for (int a = 0; a < buffersToLoad.length; a++) {
+      if (buffersToLoad[a]) {
+        futures.add(loadBuffer(a));
+      }
+    }
+    Future.wait(futures);
   }
 
   @override

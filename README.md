@@ -1,6 +1,6 @@
-# glTF 2.0 helper
+# glTF 2.0 helper library
 
-A flutter package allowing load .gltf and .glb files according to the glTF 2.0 specification.
+A Flutter package that allows loading .gltf and .glb (glTF binary format) files according to the [glTF 2.0 specification.](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html)
 
 ## Features
 
@@ -12,7 +12,13 @@ A flutter package allowing load .gltf and .glb files according to the glTF 2.0 s
   * Load specific image via GLTF.loadImage
   * Load assets needed by a scene via GLTF.loadScene
 
+## Live viewer
+
+Try the [glTF Viewer](https://leal.games/gltf_viewer) and dive into the internal structure of your assets.
+
 ## Extensions
+
+Ratified glTF 2.0 KHR extensions:
 
 |                                 | Status  | Reference                                                                                                      |
 |---------------------------------|---------|----------------------------------------------------------------------------------------------------------------|

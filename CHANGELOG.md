@@ -1,3 +1,7 @@
+## 0.1.0
+
+* fix loadScene internal implementation
+
 ## 0.0.7
 
 * refactor source code
