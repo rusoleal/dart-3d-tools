@@ -1,7 +1,6 @@
-import 'package:gltf_loader/khr_materials_ior.dart';
-import 'package:gltf_loader/khr_materials_specular.dart';
-import 'package:gltf_loader/khr_texture_transform.dart';
-
+import 'khr_materials_ior.dart';
+import 'khr_materials_specular.dart';
+import 'khr_texture_transform.dart';
 import 'utils.dart';
 import 'package:vector_math/vector_math.dart';
 

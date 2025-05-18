@@ -1,5 +1,4 @@
-import 'package:gltf_loader/khr_animation_pointer.dart';
-
+import 'khr_animation_pointer.dart';
 import 'utils.dart';
 import 'gltf.dart';
 import 'sampler.dart';

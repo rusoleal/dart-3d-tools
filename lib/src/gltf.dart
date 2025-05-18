@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:gltf_loader/ext_texture_webp.dart';
-import 'package:gltf_loader/khr_lights_punctual.dart';
-import 'package:gltf_loader/khr_materials_specular.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'animation.dart';
 import 'buffer.dart';
+import 'ext_texture_webp.dart';
 import 'image.dart';
+import 'khr_lights_punctual.dart';
 import 'khr_materials_ior.dart';
+import 'khr_materials_specular.dart';
 import 'material.dart';
 import 'mesh.dart';
 import 'sampler.dart';

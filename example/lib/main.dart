@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gltf_loader/gltf_loader.dart';
 import 'package:http/http.dart' as http;
-import 'package:gltf_loader/gltf.dart';
 
 void main() {
   runApp(const MyApp());

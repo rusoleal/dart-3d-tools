@@ -1,4 +1,4 @@
-import 'package:gltf_loader/gltf.dart';
+import 'gltf.dart';
 
 /// A buffer points to binary geometry, animation, or skins.
 class Buffer extends GLTFBase {

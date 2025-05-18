@@ -1,4 +1,4 @@
-import 'package:gltf_loader/gltf.dart';
+import 'gltf.dart';
 
 /// Image data used to create a texture. Image MAY be referenced by an URI
 /// (or IRI) or a buffer view index.

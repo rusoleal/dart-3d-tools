@@ -1,3 +1,8 @@
+## 0.0.7
+
+* refactor source code
+* populate README.md
+
 ## 0.0.6
 
 * fix loadImage() index check

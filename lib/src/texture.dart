@@ -1,5 +1,4 @@
-import 'package:gltf_loader/ext_texture_webp.dart';
-
+import 'ext_texture_webp.dart';
 import 'gltf.dart';
 
 /// A texture and its sampler.
