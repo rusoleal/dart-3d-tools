@@ -1,3 +1,8 @@
+## 0.2.0
+
+* onRefresh event.
+* added estimatedMemoryUsage;
+
 ## 0.1.0
 
 * fix loadScene internal implementation

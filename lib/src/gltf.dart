@@ -61,6 +61,8 @@ class GLTF extends GLTFBase {
   List<Skin> skins;
   List<KHRLightPunctual> khrLightsPunctual;
 
+  Set<void Function()> _onRefresh = {};
+
   // runtime data
   late List<ui.Image?> _runtimeImages;
   late List<Uint8List?> _runtimeBuffers;
@@ -102,11 +104,41 @@ class GLTF extends GLTFBase {
     _runtimeBuffers = List.filled(this.buffers.length, null);
   }
 
+  void addOnRefreshListener(void Function() listener) {
+    _onRefresh.add(listener);
+  }
+
+  void removeOnRefreshListener(void Function() listener) {
+    _onRefresh.remove(listener);
+  }
+
+  void _refresh() {
+    for (var listener in _onRefresh) {
+      listener();
+    }
+  }
+
   /// runtime image list. Call [loadImage] to load images.
   List<ui.Image?> get runtimeImages => List.unmodifiable(_runtimeImages);
 
   /// runtime buffer list. Call [loadBuffer] to load buffers.
   List<Uint8List?> get runtimeBuffers => List.unmodifiable(_runtimeBuffers);
+
+  /// Returns the estimated memory usage of the GLTF loaded assets in bytes.
+  ///
+  /// Value is calculated based on buffers and images loaded.
+  int get estimatedMemoryUsage {
+    int toReturn = 0;
+    for (var buffer in runtimeBuffers) {
+      toReturn += buffer?.lengthInBytes ?? 0;
+    }
+    for (var image in runtimeImages) {
+      if (image != null) {
+        toReturn += image.width * image.height * 4;
+      }
+    }
+    return toReturn;
+  }
 
   Future<Uint8List> _loadAsset(String? uri) async {
     print('Loading asset: $uri');
@@ -122,11 +154,12 @@ class GLTF extends GLTFBase {
     for (int a = 0; a < _runtimeImages.length; a++) {
       _runtimeImages[a] = null;
     }
+    _refresh();
   }
 
   /// load data from buffer at [bufferIndex].
   /// This method load a buffer and store it in [runtimeBuffers] at [bufferIndex].
-  Future<void> loadBuffer(int bufferIndex) async {
+  Future<void> loadBuffer(int bufferIndex, [bool refresh = true]) async {
     // finish if bufferIndex is out of range or buffer is already loaded
     if (bufferIndex < 0 ||
         bufferIndex >= buffers.length ||
@@ -136,11 +169,14 @@ class GLTF extends GLTFBase {
 
     var data = await _loadAsset(buffers[bufferIndex].uri);
     _runtimeBuffers[bufferIndex] = data;
+    if (refresh) {
+      _refresh();
+    }
   }
 
   /// load runtime image at [imageIndex].
   /// This method load image and store it in [runtimeImages] at [imageIndex].
-  Future<void> loadImage(int imageIndex) async {
+  Future<void> loadImage(int imageIndex, [bool refresh = true]) async {
     // finish if bufferIndex is out of range or buffer is already loaded
     if (imageIndex < 0 ||
         imageIndex >= images.length ||
@@ -169,6 +205,10 @@ class GLTF extends GLTFBase {
 
     ui.Codec codec = await ui.instantiateImageCodec(data);
     _runtimeImages[imageIndex] = (await codec.getNextFrame()).image;
+
+    if (refresh) {
+      _refresh();
+    }
   }
 
   void _updateImagesToLoadFromTexture(
@@ -282,15 +322,16 @@ class GLTF extends GLTFBase {
     List<Future> futures = [];
     for (int a = 0; a < imagesToLoad.length; a++) {
       if (imagesToLoad[a]) {
-        futures.add(loadImage(a));
+        futures.add(loadImage(a, false));
       }
     }
     for (int a = 0; a < buffersToLoad.length; a++) {
       if (buffersToLoad[a]) {
-        futures.add(loadBuffer(a));
+        futures.add(loadBuffer(a, false));
       }
     }
     Future.wait(futures);
+    _refresh();
   }
 
   @override
