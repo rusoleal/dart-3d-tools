@@ -448,10 +448,10 @@ class GLTF extends GLTFBase {
       String? name = camera['name'];
       switch (type) {
         case 'perspective':
-          double? aspectRatio = camera['perspective']['aspectRatio'];
-          double yfov = camera['perspective']['yfov'];
-          double? zFar = camera['perspective']['zfar'];
-          double zNear = camera['perspective']['znear'];
+          double? aspectRatio = camera['perspective']['aspectRatio']?.toDouble();
+          double yfov = camera['perspective']['yfov'].toDouble();
+          double? zFar = camera['perspective']['zfar']?.toDouble();
+          double zNear = camera['perspective']['znear'].toDouble();
           cameras.add(
             PerspectiveCamera(
               aspectRatio: aspectRatio,
@@ -463,10 +463,10 @@ class GLTF extends GLTFBase {
           );
           break;
         case 'orthographic':
-          double xMag = camera['orthographic']['xmag'];
-          double yMag = camera['orthographic']['ymag'];
-          double zFar = camera['orthographic']['zfar'];
-          double zNear = camera['orthographic']['znear'];
+          double xMag = camera['orthographic']['xmag'].toDouble();
+          double yMag = camera['orthographic']['ymag'].toDouble();
+          double zFar = camera['orthographic']['zfar'].toDouble();
+          double zNear = camera['orthographic']['znear'].toDouble();
           //double yMin = camera['orthographic']['yMin'];
           //double yMax = camera['orthographic']['yMax'];
           cameras.add(
