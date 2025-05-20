@@ -10,7 +10,9 @@ import 'ext_texture_webp.dart';
 import 'image.dart';
 import 'khr_lights_punctual.dart';
 import 'khr_materials_ior.dart';
+import 'khr_materials_sheen.dart';
 import 'khr_materials_specular.dart';
+import 'khr_materials_transmission.dart';
 import 'material.dart';
 import 'mesh.dart';
 import 'sampler.dart';
@@ -38,8 +40,10 @@ class GLTF extends GLTFBase {
   static const List<String> implementedExtensions = [
     'KHR_animation_pointer',
     'KHR_lights_punctual',
-    'KHR_materials_specular',
     'KHR_materials_ior',
+    'KHR_materials_sheen',
+    'KHR_materials_specular',
+    'KHR_materials_transmission',
     'KHR_texture_transform',
     'EXT_texture_webp',
   ];
@@ -489,7 +493,8 @@ class GLTF extends GLTFBase {
       String? name = camera['name'];
       switch (type) {
         case 'perspective':
-          double? aspectRatio = camera['perspective']['aspectRatio']?.toDouble();
+          double? aspectRatio =
+              camera['perspective']['aspectRatio']?.toDouble();
           double yfov = camera['perspective']['yfov'].toDouble();
           double? zFar = camera['perspective']['zfar']?.toDouble();
           double zNear = camera['perspective']['znear'].toDouble();
@@ -627,6 +632,8 @@ class GLTF extends GLTFBase {
 
       KHRMaterialSpecular? khrMaterialSpecular;
       KHRMaterialIor? khrMaterialIor;
+      KHRMaterialTransmission? khrMaterialTransmission;
+      KHRMaterialSheen? khrMaterialSheen;
 
       var extensions = material['extensions'];
       if (extensions != null) {
@@ -656,6 +663,40 @@ class GLTF extends GLTFBase {
           double ior = ((iorExt['ior'] as num?) ?? 1.0).toDouble();
           khrMaterialIor = KHRMaterialIor(ior: ior);
         }
+
+        var transmissionExt = extensions['KHR_materials_transmission'];
+        if (transmissionExt != null) {
+          double? transmissionFactor =
+              transmissionExt['transmissionFactor']?.toDouble();
+          TextureInfo? transmissionTexture = TextureInfo.fromGLTF(
+            transmissionExt['transmissionTexture'],
+          );
+          khrMaterialTransmission = KHRMaterialTransmission(
+            transmissionFactor: transmissionFactor,
+            transmissionTexture: transmissionTexture,
+          );
+        }
+
+        var sheenExt = extensions['KHR_materials_sheen'];
+        if (sheenExt != null) {
+          Vector3? sheenColorFactor = vec3FromGLTF(
+            sheenExt['sheenColorFactor'],
+          );
+          TextureInfo? sheenColorTexture = TextureInfo.fromGLTF(
+            sheenExt['sheenColorTexture'],
+          );
+          double? sheenRoughnessFactor =
+              sheenExt['sheenRoughnessFactor']?.toDouble();
+          TextureInfo? sheenRoughnessTexture = TextureInfo.fromGLTF(
+            sheenExt['sheenRoughnessTexture'],
+          );
+          khrMaterialSheen = KHRMaterialSheen(
+            sheenColorFactor: sheenColorFactor,
+            sheenColorTexture: sheenColorTexture,
+            sheenRoughnessFactor: sheenRoughnessFactor,
+            sheenRoughnessTexture: sheenRoughnessTexture,
+          );
+        }
       }
 
       materials.add(
@@ -671,6 +712,8 @@ class GLTF extends GLTFBase {
           doubleSided: doubleSided,
           khrMaterialSpecular: khrMaterialSpecular,
           khrMaterialIor: khrMaterialIor,
+          khrMaterialTransmission: khrMaterialTransmission,
+          khrMaterialSheen: khrMaterialSheen,
         ),
       );
     }

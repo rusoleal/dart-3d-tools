@@ -1,35 +1,41 @@
+## 0.2.1
+
+* fix double values loading camera objects.
+* KHR_materials_sheen extension implemented.
+* KHR_materials_transmission extension implemented.
+
 ## 0.2.0
 
 * onRefresh event.
-* added estimatedMemoryUsage;
+* added estimatedMemoryUsage.
 
 ## 0.1.0
 
-* fix loadScene internal implementation
+* fix loadScene internal implementation.
 
 ## 0.0.7
 
-* refactor source code
-* populate README.md
+* refactor source code.
+* populate README.md.
 
 ## 0.0.6
 
-* fix loadImage() index check
+* fix loadImage() index check.
 
 ## 0.0.5
 
-* expose public getters for GLTF.runtimeImages and GLTF.runtimeBuffers
+* expose public getters for GLTF.runtimeImages and GLTF.runtimeBuffers.
 
 ## 0.0.4
 
-* fix documentation format issues
-* added package topics
-* fix Scene.dart incorrect name
+* fix documentation format issues.
+* added package topics.
+* fix Scene.dart incorrect name.
 
 ## 0.0.3
 
 * 2.0 glTF spec conformant.
-* on demand loading assets (buffers and images)
+* on demand loading assets (buffers and images).
 * implemented extensions:
 *   KHR_animation_pointer, 
 *   KHR_lights_punctual, 
@@ -40,7 +46,7 @@
 
 ## 0.0.2
 
-* dart format covention
+* dart format convention.
 
 ## 0.0.1
 

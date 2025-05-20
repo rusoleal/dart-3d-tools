@@ -1,3 +1,6 @@
+import 'package:gltf_loader/src/khr_materials_sheen.dart';
+import 'package:gltf_loader/src/khr_materials_transmission.dart';
+
 import 'khr_materials_ior.dart';
 import 'khr_materials_specular.dart';
 import 'khr_texture_transform.dart';
@@ -89,6 +92,12 @@ class Material extends GLTFBase {
   /// KHR_materials_ior
   KHRMaterialIor? khrMaterialIor;
 
+  /// KHR_materials_transmission
+  KHRMaterialTransmission? khrMaterialTransmission;
+
+  /// KHR_materials_sheen
+  KHRMaterialSheen? khrMaterialSheen;
+
   Material({
     this.name,
     this.pbrMetallicRoughness,
@@ -103,6 +112,8 @@ class Material extends GLTFBase {
     super.extras,
     this.khrMaterialSpecular,
     this.khrMaterialIor,
+    this.khrMaterialTransmission,
+    this.khrMaterialSheen,
   }) : emissiveFactor = emissiveFactor ?? Vector3.zero();
 }
 
