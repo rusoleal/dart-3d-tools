@@ -8,6 +8,8 @@ topics:
   - model3d
 funding:
   - https://buymeacoffee.com/rusoleal
+  - https://github.com/sponsors/rusoleal
+  - https://thanks.dev/u/gh/rusoleal
 
 environment:
   sdk: ^3.7.2
