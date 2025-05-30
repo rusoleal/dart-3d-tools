@@ -1,8 +1,11 @@
 import 'package:gltf_loader/src/extensions/khr_materials_dispersion.dart';
+import 'package:gltf_loader/src/extensions/khr_materials_unlit.dart';
 
 import '../gltf_loader.dart';
 import 'extensions/khr_materials_anisotropy.dart';
+import 'extensions/khr_materials_emissive_strength.dart';
 import 'extensions/khr_materials_ior.dart';
+import 'extensions/khr_materials_iridescence.dart';
 import 'extensions/khr_materials_sheen.dart';
 import 'extensions/khr_materials_specular.dart';
 import 'extensions/khr_materials_transmission.dart';
@@ -107,6 +110,15 @@ class Material extends GLTFBase {
   /// KHR_materials_dispersion
   KHRMaterialDispersion? khrMaterialDispersion;
 
+  /// KHR_materials_emissive_strength
+  KHRMaterialEmissiveStrength? khrMaterialEmissiveStrength;
+
+  /// KHR_materials_iridescence
+  KHRMaterialIridescence? khrMaterialIridescence;
+
+  /// KHR_materials_unlit
+  KHRMaterialUnlit? khrMaterialUnlit;
+
   Material({
     this.name,
     this.pbrMetallicRoughness,
@@ -126,6 +138,9 @@ class Material extends GLTFBase {
     this.khrMaterialVolume,
     this.khrMaterialAnisotropy,
     this.khrMaterialDispersion,
+    this.khrMaterialEmissiveStrength,
+    this.khrMaterialIridescence,
+    this.khrMaterialUnlit,
   }) : emissiveFactor = emissiveFactor ?? Vector3.zero();
 }
 

@@ -1,6 +1,6 @@
 name: gltf_loader
 description: "Pure dart glTF 2.0 Specification loader utility with dynamic asset loading"
-version: 0.2.1
+version: 0.3.0
 repository: https://github.com/rusoleal/dart-3d-tools
 topics:
   - gltf
@@ -18,7 +18,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  vector_math: ^2.1.4
+  vector_math: ^2.1.0
 
 dev_dependencies:
   flutter_test:

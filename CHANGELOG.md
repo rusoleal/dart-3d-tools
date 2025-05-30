@@ -1,3 +1,14 @@
+## 0.3.0
+
+* implemented extensions:
+*   KHR_materials_anisotropy
+*   KHR_materials_dispersion
+*   KHR_materials_emissive_strength
+*   KHR_materials_iridescence
+*   KHR_materials_unlit
+*   KHR_materials_volume
+* GLTF.loadAll() for a bulk asset loading.
+
 ## 0.2.1
 
 * fix double values loading camera objects.

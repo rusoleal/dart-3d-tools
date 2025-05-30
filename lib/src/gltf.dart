@@ -2,14 +2,17 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:gltf_loader/src/extensions/khr_materials_dispersion.dart';
+import 'package:gltf_loader/src/extensions/khr_materials_emissive_strength.dart';
+import 'package:gltf_loader/src/extensions/khr_materials_iridescence.dart';
 import 'package:vector_math/vector_math.dart';
 
 import 'animation.dart';
 import 'buffer.dart';
 import 'extensions/ext_texture_webp.dart';
 import 'extensions/khr_materials_anisotropy.dart';
+import 'extensions/khr_materials_dispersion.dart';
 import 'extensions/khr_materials_ior.dart';
+import 'extensions/khr_materials_unlit.dart';
 import 'image.dart';
 import 'extensions/khr_lights_punctual.dart';
 import 'extensions/khr_materials_sheen.dart';
@@ -40,19 +43,23 @@ class GLTFBase {
 }
 
 class GLTF extends GLTFBase {
-  static const List<String> implementedExtensions = [
+  static const Set<String> implementedExtensions = {
     'KHR_animation_pointer',
     'KHR_lights_punctual',
     'KHR_materials_anisotropy',
     'KHR_materials_clearcoat',
+    'KHR_materials_dispersion',
+    'KHR_materials_emissive_strength',
     'KHR_materials_ior',
+    'KHR_materials_iridescence',
     'KHR_materials_sheen',
     'KHR_materials_specular',
     'KHR_materials_transmission',
+    'KHR_materials_unlit',
     'KHR_materials_volume',
     'KHR_texture_transform',
     'EXT_texture_webp',
-  ];
+  };
 
   final Future<Uint8List> Function(String? uri) _onLoadData;
 
@@ -236,6 +243,26 @@ class GLTF extends GLTFBase {
     }
   }
 
+  /// load all buffers andd images
+  Future<void> loadAll() async {
+    List<Future> futures = [];
+
+    for (int a = 0; a < _runtimeBuffers.length; a++) {
+      if (runtimeBuffers[a] == null) {
+        futures.add(loadBuffer(a, false));
+      }
+    }
+
+    for (int a = 0; a < _runtimeImages.length; a++) {
+      if (_runtimeImages[a] == null) {
+        futures.add(loadImage(a, false));
+      }
+    }
+
+    await Future.wait(futures);
+    _refresh();
+  }
+
   /// load assets needed to render scene at [sceneIndex]
   Future<void> loadScene(int sceneIndex) async {
     if (sceneIndex < 0 || sceneIndex >= scenes.length) {
@@ -324,6 +351,24 @@ class GLTF extends GLTFBase {
                 }
               }
             }
+
+            // search for indices buffer
+            if (primitive.indices != null) {
+              Accessor accessor = accessors[primitive.indices!];
+              if (accessor.bufferView != null) {
+                BufferView bv = bufferViews[accessor.bufferView!];
+                buffersToLoad[bv.buffer] = true;
+              }
+            }
+
+            // search for vertex attributes
+            for (var attribute in primitive.attributes.values) {
+              Accessor accessor = accessors[attribute];
+              if (accessor.bufferView != null) {
+                BufferView bv = bufferViews[accessor.bufferView!];
+                buffersToLoad[bv.buffer] = true;
+              }
+            }
           }
         }
       }
@@ -331,12 +376,12 @@ class GLTF extends GLTFBase {
 
     List<Future> futures = [];
     for (int a = 0; a < imagesToLoad.length; a++) {
-      if (imagesToLoad[a]) {
+      if (imagesToLoad[a] && _runtimeImages[a] == null) {
         futures.add(loadImage(a, false));
       }
     }
     for (int a = 0; a < buffersToLoad.length; a++) {
-      if (buffersToLoad[a]) {
+      if (buffersToLoad[a] && _runtimeBuffers[a] == null) {
         futures.add(loadBuffer(a, false));
       }
     }
@@ -547,25 +592,7 @@ class GLTF extends GLTFBase {
       images.add(
         Image(uri: uri, mimeType: mimeType, bufferView: bufferView, name: name),
       );
-
-      /*if (uri != null) {
-        imageLoaders.add(onLoadData(uri));
-      } else {
-        var buffer = buffers[bufferViews[bufferView!].buffer];
-        int offset = bufferViews[bufferView].offset;
-        int length = bufferViews[bufferView].length;
-        var imageBuffer = buffer.buffer.asUint8List(
-          buffer.offsetInBytes + offset,
-          length,
-        );
-        imageLoaders.add(Future.value(imageBuffer));
-      }*/
     }
-    /*List<Uint8List> imageData = await Future.wait(imageLoaders);
-    for (var data in imageData) {
-      ui.Codec codec = await ui.instantiateImageCodec(data);
-      images.add((await codec.getNextFrame()).image);
-    }*/
 
     List<Texture> textures = [];
     List<dynamic> texturesDef = json['textures'] ?? [];
@@ -643,6 +670,9 @@ class GLTF extends GLTFBase {
       KHRMaterialVolume? khrMaterialVolume;
       KHRMaterialAnisotropy? khrMaterialAnisotropy;
       KHRMaterialDispersion? khrMaterialDispersion;
+      KHRMaterialEmissiveStrength? khrMaterialEmissiveStrength;
+      KHRMaterialIridescence? khrMaterialIridescence;
+      KHRMaterialUnlit? khrMaterialUnlit;
 
       var extensions = material['extensions'];
       if (extensions != null) {
@@ -710,32 +740,84 @@ class GLTF extends GLTFBase {
         var volumeExt = extensions['KHR_materials_volume'];
         if (volumeExt != null) {
           double? thicknessFactor = volumeExt['thicknessFactor']?.toDouble();
-          TextureInfo? thicknessTexture = TextureInfo.fromGLTF(volumeExt['thicknessTexture']);
-          double? attenuationDistance = volumeExt['attenuationDistance']?.toDouble();
-          Vector3? attenuationColor = vec3FromGLTF(volumeExt['attenuationColor']);
+          TextureInfo? thicknessTexture = TextureInfo.fromGLTF(
+            volumeExt['thicknessTexture'],
+          );
+          double? attenuationDistance =
+              volumeExt['attenuationDistance']?.toDouble();
+          Vector3? attenuationColor = vec3FromGLTF(
+            volumeExt['attenuationColor'],
+          );
 
           khrMaterialVolume = KHRMaterialVolume(
             thicknessFactor: thicknessFactor,
             thicknessTexture: thicknessTexture,
             attenuationDistance: attenuationDistance,
-            attenuationColor: attenuationColor
+            attenuationColor: attenuationColor,
           );
         }
 
         var anisotropyExt = extensions['KHR_materials_anisotropy'];
         if (anisotropyExt != null) {
-          double? anisotropyStrength = anisotropyExt['anisotropyStrength']?.toDouble();
-          double? anisotropyRotation = anisotropyExt['anisotropyRotation']?.toDouble();
-          TextureInfo? anisotropyTexture = TextureInfo.fromGLTF(anisotropyExt['anisotropyTexture']);
+          double? anisotropyStrength =
+              anisotropyExt['anisotropyStrength']?.toDouble();
+          double? anisotropyRotation =
+              anisotropyExt['anisotropyRotation']?.toDouble();
+          TextureInfo? anisotropyTexture = TextureInfo.fromGLTF(
+            anisotropyExt['anisotropyTexture'],
+          );
           khrMaterialAnisotropy = KHRMaterialAnisotropy(
             anisotropyStrength: anisotropyStrength,
             anisotropyRotation: anisotropyRotation,
-            anisotropyTexture: anisotropyTexture
+            anisotropyTexture: anisotropyTexture,
           );
         }
 
+        var dispersionExt = extensions['KHR_materials_dispersion'];
+        if (dispersionExt != null) {
+          double? dispersion = dispersionExt['dispersion']?.toDouble();
+          khrMaterialDispersion = KHRMaterialDispersion(dispersion: dispersion);
+        }
 
+        var emissiveStrengthExt = extensions['KHR_materials_emissive_strength'];
+        if (emissiveStrengthExt != null) {
+          double? emissiveStrength =
+              emissiveStrengthExt['emissiveStrength']?.toDouble();
+          khrMaterialEmissiveStrength = KHRMaterialEmissiveStrength(
+            emissiveStrength: emissiveStrength,
+          );
+        }
 
+        var iridescenceExt = extensions['KHR_materials_iridescence'];
+        if (iridescenceExt != null) {
+          double? iridescenceFactor =
+              iridescenceExt['iridescenceFactor']?.toDouble();
+          TextureInfo? iridescenceTexture = TextureInfo.fromGLTF(
+            iridescenceExt['iridescenceTexture'],
+          );
+          double? iridescenceIor = iridescenceExt['iridescenceIor']?.toDouble();
+          double? iridescenceThicknessMinimum =
+              iridescenceExt['iridescenceThicknessMinimum']?.toDouble();
+          double? iridescenceThicknessMaximum =
+              iridescenceExt['iridescenceThicknessMaximum']?.toDouble();
+          TextureInfo? iridescenceThicknessTexture = TextureInfo.fromGLTF(
+            iridescenceExt['iridescenceThicknessTexture'],
+          );
+
+          khrMaterialIridescence = KHRMaterialIridescence(
+            iridescenceFactor: iridescenceFactor,
+            iridescenceTexture: iridescenceTexture,
+            iridescenceIor: iridescenceIor,
+            iridescenceThicknessMinimum: iridescenceThicknessMinimum,
+            iridescenceThicknessMaximum: iridescenceThicknessMaximum,
+            iridescenceThicknessTexture: iridescenceThicknessTexture,
+          );
+        }
+
+        var unlitExt = extensions['KHR_materials_unlit'];
+        if (unlitExt != null) {
+          khrMaterialUnlit = KHRMaterialUnlit();
+        }
       }
 
       materials.add(
@@ -755,7 +837,10 @@ class GLTF extends GLTFBase {
           khrMaterialSheen: khrMaterialSheen,
           khrMaterialVolume: khrMaterialVolume,
           khrMaterialAnisotropy: khrMaterialAnisotropy,
-          khrMaterialDispersion: khrMaterialDispersion
+          khrMaterialDispersion: khrMaterialDispersion,
+          khrMaterialEmissiveStrength: khrMaterialEmissiveStrength,
+          khrMaterialIridescence: khrMaterialIridescence,
+          khrMaterialUnlit: khrMaterialUnlit,
         ),
       );
     }

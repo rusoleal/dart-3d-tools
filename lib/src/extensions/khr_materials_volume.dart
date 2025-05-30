@@ -3,7 +3,6 @@ import '../../gltf_loader.dart';
 
 /// KHR_materials_volume
 class KHRMaterialVolume {
-
   /// The thickness of the volume beneath the surface. The value is given in the
   /// coordinate space of the mesh. If the value is 0 the material is
   /// thin-walled. Otherwise the material is a volume boundary. The doubleSided
