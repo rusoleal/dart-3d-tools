@@ -1,5 +1,5 @@
 import 'package:vector_math/vector_math.dart';
-import 'material.dart';
+import '../material.dart';
 
 class KHRMaterialSpecular {
   /// The strength of the specular reflection.

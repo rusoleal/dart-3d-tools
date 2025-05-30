@@ -1,15 +1,15 @@
-import 'package:gltf_loader/src/khr_materials_sheen.dart';
-import 'package:gltf_loader/src/khr_materials_transmission.dart';
+import 'package:gltf_loader/src/extensions/khr_materials_dispersion.dart';
 
-import 'khr_materials_ior.dart';
-import 'khr_materials_specular.dart';
-import 'khr_texture_transform.dart';
+import '../gltf_loader.dart';
+import 'extensions/khr_materials_anisotropy.dart';
+import 'extensions/khr_materials_ior.dart';
+import 'extensions/khr_materials_sheen.dart';
+import 'extensions/khr_materials_specular.dart';
+import 'extensions/khr_materials_transmission.dart';
+import 'extensions/khr_materials_volume.dart';
+import 'extensions/khr_texture_transform.dart';
 import 'utils.dart';
 import 'package:vector_math/vector_math.dart';
-
-import 'gltf.dart';
-import 'mesh.dart';
-import 'texture.dart';
 
 /// The material’s alpha rendering mode enumeration specifying
 /// the interpretation of the alpha value of the base color.
@@ -98,6 +98,15 @@ class Material extends GLTFBase {
   /// KHR_materials_sheen
   KHRMaterialSheen? khrMaterialSheen;
 
+  /// KHR_materials_volume
+  KHRMaterialVolume? khrMaterialVolume;
+
+  /// KHR_materials_anisotropy
+  KHRMaterialAnisotropy? khrMaterialAnisotropy;
+
+  /// KHR_materials_dispersion
+  KHRMaterialDispersion? khrMaterialDispersion;
+
   Material({
     this.name,
     this.pbrMetallicRoughness,
@@ -114,6 +123,9 @@ class Material extends GLTFBase {
     this.khrMaterialIor,
     this.khrMaterialTransmission,
     this.khrMaterialSheen,
+    this.khrMaterialVolume,
+    this.khrMaterialAnisotropy,
+    this.khrMaterialDispersion,
   }) : emissiveFactor = emissiveFactor ?? Vector3.zero();
 }
 
@@ -198,6 +210,7 @@ class TextureInfo extends GLTFBase {
   /// for the material to be applicable to it.
   int texCoord;
 
+  /// KHR_texture_transform
   KHRTextureTransform? khrTextureTransform;
 
   TextureInfo({

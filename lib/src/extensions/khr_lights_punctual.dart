@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:vector_math/vector_math.dart';
-import 'node.dart';
+import '../node.dart';
 
 /// Light types.
 enum KHRLightPunctualType {

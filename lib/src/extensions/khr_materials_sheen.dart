@@ -1,5 +1,5 @@
 import 'package:vector_math/vector_math.dart';
-import '../gltf_loader.dart';
+import '../../gltf_loader.dart';
 
 /// KHR_materials_sheen
 class KHRMaterialSheen {

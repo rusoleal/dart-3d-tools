@@ -1,5 +1,5 @@
 import 'package:vector_math/vector_math.dart';
-import 'khr_lights_punctual.dart';
+import 'extensions/khr_lights_punctual.dart';
 import 'sampler.dart';
 import 'animation.dart';
 import 'buffer_view.dart';

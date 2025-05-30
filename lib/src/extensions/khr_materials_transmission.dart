@@ -1,4 +1,4 @@
-import '../gltf_loader.dart';
+import '../../gltf_loader.dart';
 
 /// KHR_materials_transmission spec.
 class KHRMaterialTransmission {
