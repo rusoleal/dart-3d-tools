@@ -14,7 +14,7 @@ A Flutter package that allows loading .gltf and .glb (glTF binary format) files 
 
 ## Live viewer
 
-Try the [glTF Viewer](https://leal.games/gltf_viewer){:target="_blank"} and dive into the internal structure of your assets.
+Try the [glTF Viewer](https://leal.games/gltf_viewer) and dive into the internal structure of your assets.
 
 ## Extensions
 
