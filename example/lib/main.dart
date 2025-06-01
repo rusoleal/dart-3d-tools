@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gltf_loader/gltf_loader.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 
 void main() {
   runApp(const MyApp());
@@ -79,10 +80,11 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           );
           if (result != null) {
+            String name = basename(result);
             Uri uri = Uri.parse(result);
             var response = await http.get(uri);
             //try {
-            obj = await GLTF.loadGLTF(response.body, (assetUri) async {
+            obj = await GLTF.loadGLTF(name, response.body, (assetUri) async {
               var response = await http.get(uri.resolve(assetUri!));
               return response.bodyBytes;
             });

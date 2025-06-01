@@ -19,6 +19,7 @@ import 'extensions/khr_materials_sheen.dart';
 import 'extensions/khr_materials_specular.dart';
 import 'extensions/khr_materials_transmission.dart';
 import 'extensions/khr_materials_volume.dart';
+import 'info.dart';
 import 'material.dart';
 import 'mesh.dart';
 import 'sampler.dart';
@@ -63,6 +64,7 @@ class GLTF extends GLTFBase {
 
   final Future<Uint8List> Function(String? uri) _onLoadData;
 
+  Info info;
   List<Buffer> buffers;
   List<BufferView> bufferViews; // typed_data
   List<Accessor> accessors;
@@ -85,6 +87,7 @@ class GLTF extends GLTFBase {
   late List<Uint8List?> _runtimeBuffers;
 
   GLTF({
+    required this.info,
     required Future<Uint8List> Function(String? uri) onLoadData,
     List<Buffer>? buffers,
     List<BufferView>? bufferViews,
@@ -408,6 +411,7 @@ class GLTF extends GLTFBase {
   }
 
   static Future<GLTF> loadGLTF(
+    String name,
     String data,
     Future<Uint8List> Function(String? uri) onLoadData,
   ) async {
@@ -428,6 +432,9 @@ class GLTF extends GLTFBase {
         }
       }
     }
+
+    // load info
+    Info info = Info.fromJson(name, json);
 
     // Buffers
     List<Buffer> buffers = [];
@@ -974,6 +981,7 @@ class GLTF extends GLTFBase {
     }
 
     return GLTF(
+      info: info,
       onLoadData: onLoadData,
       buffers: buffers,
       bufferViews: bufferViews,
@@ -993,6 +1001,7 @@ class GLTF extends GLTFBase {
   }
 
   static Future<GLTF> loadGLB(
+    String name,
     Uint8List data,
     Future<Uint8List> Function(String uri) onLoadData,
   ) async {
@@ -1017,7 +1026,7 @@ class GLTF extends GLTFBase {
     }
     //print('${binaryChunk!.length}');
 
-    return loadGLTF(json, (uri) {
+    return loadGLTF(name, json, (uri) {
       //print('trying to load $uri');
       if (uri == null) {
         return Future.value(binaryChunk);

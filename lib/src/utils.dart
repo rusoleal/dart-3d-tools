@@ -5,6 +5,21 @@ import 'animation.dart';
 import 'buffer_view.dart';
 import 'material.dart';
 
+List<String> stringListFromGLTF(dynamic node) {
+  if (node is! List) {
+    return [];
+  }
+
+  List<String> toReturn = [];
+  for (var element in node) {
+    if (element is String) {
+      toReturn.add(element);
+    }
+  }
+
+  return toReturn;
+}
+
 Vector2? vec2FromGLTF(List<dynamic>? vec) {
   if (vec == null) {
     return null;

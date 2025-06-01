@@ -1,3 +1,7 @@
+## 0.4.0
+
+* Extracted asset info and populated in GLTF.info attribute.
+
 ## 0.3.0
 
 * implemented extensions:
