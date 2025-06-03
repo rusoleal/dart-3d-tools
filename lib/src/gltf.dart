@@ -388,7 +388,7 @@ class GLTF extends GLTFBase {
         futures.add(loadBuffer(a, false));
       }
     }
-    Future.wait(futures);
+    await Future.wait(futures);
     _refresh();
   }
 

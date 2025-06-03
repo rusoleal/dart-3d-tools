@@ -1,3 +1,7 @@
+## 0.4.1
+
+* Fix GLTF.loadScene() waiting for all futures.
+
 ## 0.4.0
 
 * Extracted asset info and populated in GLTF.info attribute.
